@@ -1,0 +1,10 @@
+PUT  http://localhost:3003/api/blogs/5ebe52d0da0524045c0817f8
+Content-Type: application/json
+
+{
+    "title" : "TutorialsPoint",
+    "author" : "admin",
+    "url" : "https://bit.ly/2WWmEwI",
+    "description": "A wide range of tutorials from all around the software developer industry.",
+    "likes": 0
+}

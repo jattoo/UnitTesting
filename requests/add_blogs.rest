@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title" : "hello world",
+    "author": "Admin",
+    "url" : "https://bit.ly/2Z76pQj",
+    "description" : "common programmer jargons",
+    "likes": 0
+}

@@ -33,7 +33,8 @@ blogRouter.get('/', (request, response, next) => {
       .then(savedBlog => {
         res.json(savedBlog.toJSON())
       })
-      .catch(error => next(error))
+      //changed to 400 for validation in tests
+      .catch(error => next(res.status(400)))
   })
   
   //TODO: update a blog

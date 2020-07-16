@@ -1,36 +1,28 @@
 const mongoose = require('mongoose')
+const helper = require('./test_helper')
 const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 
 
-const initialBlogs = [
-    {
-        title: 'Dummy Blog one',
-        author: 'admin',
-        url: 'example.com',
-        likes: 0,
-        description: 'Dummy text for api testing'
-    },
-    {
-        title: 'Dummy Blog api',
-        author: 'admin',
-        url: 'www.example.com',
-        likes: 0,
-        description: 'Dummy text for api testing with supertest'
-    }
-]
+
 
 
 beforeEach(async () => {
-    await Blog.deleteMany({})
+    /*await Blog.deleteMany({})
 
     let blogObject = new Blog(initialBlogs[0])
     await blogObject.save()
 
     blogObject = new Blog(initialBlogs[1])
-    blogObject.save()
+    blogObject.save()*/
+
+    await Blog.deleteMany({})
+
+    const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
+    const promiseArray = blogObjects.map(blog => blog.save())
+    await Promise.all(promiseArray)
 })
 describe('testing our api', () => {
     test('all blogs are returned as json', async() => {
@@ -42,7 +34,7 @@ describe('testing our api', () => {
     
         //verify the amount of blogs that are returned
         const allBlogs = await api.get('/api/blogs')
-        expect(allBlogs.body).toHaveLength(initialBlogs.length)
+        expect(allBlogs.body).toHaveLength(helper.initialBlogs.length)
     })
     
     test('unique identifier exists', async () => {
@@ -66,7 +58,7 @@ describe('testing our api', () => {
             .expect(200)
         
         const currentBlogCount = await Blog.find({})
-        expect(currentBlogCount).toHaveLength(initialBlogs.length+1)
+        expect(currentBlogCount).toHaveLength(helper.initialBlogs.length+1)
     })
     test('if no like field, then default to zero', async () => {
         const newBlog = {
@@ -86,7 +78,7 @@ describe('testing our api', () => {
         expect(Number(totalikes)).toBe(0)
     })
 
-    test.only('if title and url absent we get 400', async()=> {
+    test('if title and url absent we get 400', async()=> {
         const newBlog = {
             likes: 0,
             author: 'tester joe',
@@ -99,6 +91,35 @@ describe('testing our api', () => {
             .expect(400)
     })
 })
+
+describe.only('functionality', () => {
+    test('can delete a resource', async () => {
+        const newBlog = {
+            title: 'can you delete me?',
+            author: 'tester joe',
+            url: 'example.com/test',
+            likes: 100,
+            description: 'Integration testing is just so amazing'
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(200)
+
+        const lastAddedBlog = await Blog.find({title: 'can you delete me?'})
+        const id = lastAddedBlog.map(blog => blog.id)
+        await api
+            .delete(`/api/blogs/${id}`)
+            .expect(204)
+        
+        const currentBlogs = await helper.blogsInDb()
+        expect(currentBlogs).not.toContain(lastAddedBlog)
+            
+    })
+    
+})
+
 
 afterAll(() => {
     mongoose.connection.close()

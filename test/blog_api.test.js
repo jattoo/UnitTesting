@@ -10,14 +10,6 @@ const Blog = require('../models/blog')
 
 
 beforeEach(async () => {
-    /*await Blog.deleteMany({})
-
-    let blogObject = new Blog(initialBlogs[0])
-    await blogObject.save()
-
-    blogObject = new Blog(initialBlogs[1])
-    blogObject.save()*/
-
     await Blog.deleteMany({})
 
     const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
@@ -92,7 +84,7 @@ describe('testing our api', () => {
     })
 })
 
-describe.only('functionality', () => {
+describe('functionality', () => {
     test('can delete a resource', async () => {
         const newBlog = {
             title: 'can you delete me?',
